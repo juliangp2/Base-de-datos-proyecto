@@ -1,0 +1,372 @@
+create database Inventario
+use Inventario
+/* se crea la tabla administrador */
+
+create table Cuentas(
+Email varchar (55),
+NameUser Varchar (10),
+Pass varchar (10)
+)
+	
+/* se crea la tabla rol */
+
+create table rol (
+idRol varchar(1) primary key,
+nomR varchar(16) not null
+);
+
+/* se crea la tabla usuario */
+
+create table usuario (
+Cedula varchar (20) primary key,
+nomU varchar (20) not null,
+apelliU varchar (20) not null,
+celular varchar(15) default 'desconocido',
+emailU varchar (30)not null,
+id_rol varchar(1) foreign key references rol(idRol) 
+);
+
+/* se crea la tabla producto*/
+
+create table producto (
+codigoP varchar (12) primary key,
+nomP varchar (15)not null,
+stock int,
+categoria varchar (15)
+);
+
+/* se crea la tabla prestamo*/
+
+create table prestamo (
+idP int identity(1,1) primary key,
+fechaP date default format(getdate(),'dd/mm/yyyy'),
+estado varchar(20),
+cedu varchar(20) references usuario(cedula));
+
+/* create table Detalle de prestamo */
+
+create table DetPrestamo(
+idPrestamo int references prestamo(idP),
+idProd varchar(12) references producto(codigoP),
+cantidad int);
+
+/* se crea la tabla de devolucion */
+
+create table devolucion(
+idDev int identity(1,1) primary key,
+fechaDev date default format(getdate(),'dd/mm/yyyy'),
+cantDv int,
+idPres int references prestamo(idp));
+
+/* se crea crud de administrador */
+
+create procedure Insertadmini
+(
+  @usu varchar(45),
+  @contra varchar(45),
+  @ema varchar(35)
+)
+as
+begin
+ insert into admini(usuario,contrase�a,email) values (@usu,@contra,@ema);
+end
+
+create procedure NewPass
+@usu varchar(45),
+@contra varchar(45)
+as
+begin
+update admini set contrase�a = @contra where usuario = @usu
+end
+
+create procedure deleteadmini (
+@usu varchar(45))
+as
+begin
+delete from admini where usuario = @usu;
+end
+
+/* se crea crud de rol */
+
+create procedure InsertarRol
+(
+ @idR varchar(1),
+ @nomR varchar(16)
+)
+as
+begin
+ insert into rol(idRol,nomR) values (@idR,@nomR);
+end
+
+create procedure updateRol
+@idR varchar(1),
+@nomR varchar(16)
+as
+begin
+update rol set nomR = @nomR where idRol = @idR
+end
+
+create procedure deleterol (
+@idR varchar(1))
+as
+begin
+delete from rol where idRol = @idR;
+end
+
+exec InsertarRol '1','Aprendiz'
+exec InsertarRol '2','Instructor'
+exec InsertarRol '3','Practicante'
+
+select * from rol 
+
+/* se crea crud de usuario */
+
+create procedure InsertarUsuario
+ @Cedula varchar(20),
+ @nomU varchar(20),
+ @apelliU varchar(20),
+ @celular varchar(15),
+ @gmail varchar(30),
+ @id_rol varchar(1)
+
+as
+begin
+ insert into usuario(Cedula,nomU,apelliU,celular,emailU,id_rol) values (@Cedula,@nomU,@apelliU,@celular,@gmail,@id_rol);
+end
+
+create procedure NewUsuario
+@Cedula varchar(20),
+@nomU varchar(20),
+@apelliU varchar(20),
+@celular varchar(15),
+@gmail varchar(30),
+@id_rol varchar(1)
+as
+begin
+update usuario set nomU=@nomU, apelliU = @apelliU, celular = @celular, emailU = @gmail where Cedula = @Cedula
+end
+
+create procedure deleteusuario (
+@Cedula varchar(20))
+as
+begin
+delete from usuario where Cedula = @Cedula;
+end
+
+select * from usuario;
+
+/* se crea crud de producto */
+
+create procedure InsertarProducto
+ @CodigoP varchar(12),
+ @nomP varchar(15),
+ @tipo varchar(15),
+ @disponible int
+as
+begin
+ insert into producto(codigoP,nomP,categoria,stock) values (@codigoP,@nomP,@tipo,@disponible);
+end
+
+create procedure NewProducto
+ @CodigoP varchar(12),
+ @nomP varchar(15),
+ @tipo varchar(15),
+ @disponible int
+as
+begin
+update producto set codigoP = @CodigoP, nomP=@nomP, categoria = @tipo, stock = @disponible where codigoP = @CodigoP
+end
+
+create procedure deleteproducto (
+@CodigoP varchar(12))
+as
+begin
+delete from producto where codigoP = @CodigoP;
+end
+
+/* se crea crud de prestamo */
+
+create proc InsertPrestamo
+@fechaP varchar(50),
+@cedu varchar (20),
+@EstadoP varchar(20),
+@idP int output
+as
+begin
+insert into prestamo values (@fechaP,@cedu,@EstadoP) set @idP = SCOPE_IDENTITY();
+return @idP;
+end
+
+create procedure UpdatePrestamo
+ @idP int,
+ @FechaP date,
+ @EstadoP int,
+ @cedu varchar(20)
+as
+begin
+update prestamo set fechaP = @FechaP, estado = @EstadoP, cedu = @cedu where idP = @idP
+end
+
+create procedure DeletePrestamo (
+@idP int)
+as
+begin
+delete from prestamo where idP = @idP;
+end
+
+select * from prestamo;
+
+/* se crea CRUD de devolucion */
+
+create procedure InsertarDevolucion
+@fechaDev date,
+@cantidad int,
+@idPres int
+as
+begin
+ insert into devolucion(fechaDev,cantDv,idPres) values (@fechaDev,@cantidad,@idPres);
+end
+
+create procedure UpdateDevolucion
+@idDev int,
+@fechaDev date,
+@cantidad int,
+@idPres int
+as
+begin
+update devolucion set fechaDev = @fechaDev,cantDv = @cantidad ,idPres = @idPres where idDev = @idDev
+end
+
+create procedure DeleteDevolucion(
+@idDev int)
+as
+begin
+delete from devolucion where idDev = @idDev
+end
+
+/* se crea procedimiento de insert de detalle de prestamo */
+
+create proc InsertDetPrestamo
+@idP int,
+@cant int,
+@idProd int 
+as
+begin
+ insert into detPrestamo (idPrestamo,idProd,cantidad) values (@idP,@idProd,@cant);
+end
+
+/* se crea view de DetUsuario*/
+
+create view DetUsuario
+as
+select Cedula, nomU as Nombre, apelliU as Apellido, emailU, celular, nomR as Rol 
+from usuario 
+inner join rol 
+on usuario.id_rol = rol.idRol
+
+/*creacion de vista*/
+
+create view detdevolucion
+as
+select idP, cantidad, idProd
+from prestamo
+join DetPrestamo
+on prestamo.idP = DetPrestamo.idPrestamo
+join devolucion
+on prestamo.idP = devolucion.idPres
+
+/* se crea view de DetProducto*/
+
+create view DetProducto
+as
+select codigoP as codigo, nomP as Nombre, categoria, stock 
+from producto
+
+/*VISTA DETALLADA DEL PRESTAMO */
+
+create view Completa
+as
+select idP as ID,fechaP as Fecha_Prestamo,Cedula,nomU as Nombre,apelliU as Apellido,cantidad,codigoP as Codigo,nomP as Producto from prestamo
+join usuario
+on prestamo.cedu = usuario.Cedula
+join rol
+on usuario.id_rol = rol.idRol
+join detPrestamo
+on detPrestamo.idPrestamo = prestamo.idP
+join producto
+on producto.codigoP = detPrestamo.idProd
+
+/*VISTA MAS ESPECIFICA DEL PRESTAMO */
+create view Devolver
+as
+select idP as ID,cedu as Cedula,idProd as Codigo,nomP as Producto, cantidad,fechaP as Fecha_prestamo from prestamo
+join detPrestamo
+on prestamo.idP = detPrestamo.idPrestamo
+join producto
+on detPrestamo.idProd = producto.codigoP
+
+/* se crea disparador para restar existencia despues de un prestamo */
+
+create trigger RestarExistencia
+on detPrestamo
+after insert
+as
+begin
+  declare @total int;
+  declare @cant int;
+  declare @idP varchar(20);
+  declare @resta int;
+
+  select @idP = idProd , @cant = cantidad from DetPrestamo
+  select @resta = stock from producto where codigoP = @idP
+
+  set @total = @resta - @cant
+
+  update producto
+  set stock = @total where codigoP = @idP
+end
+
+/* se crea procedimiento almacenado para sumar existencia despues de una devolucion */
+
+create proc SP_SumStock
+@idP int,
+@CantD int,
+@fecha date,
+@idProdcut varchar (12)
+as
+begin
+	declare @stock int;
+	declare @NewStock int;
+	declare @CantPres int;
+	declare @TotalPres int;
+
+	insert into devolucion (fechaDev,cantDv,idPres) values (@fecha,@CantD,@idP)
+
+	select @stock = stock from producto where codigoP = @idProdcut
+	select  @CantPres = cantidad from detPrestamo where idProd = @idProdcut and idPrestamo = @idP
+
+	set @NewStock = @stock + @CantD
+	set @TotalPres = @CantPres - @CantD
+
+	update producto
+	set stock = @NewStock where codigoP = @idProdcut
+	update detPrestamo
+	set cantidad=  @TotalPres  where idProd = @idProdcut and idPrestamo = @idP
+end
+
+/* se crea vista de historial */
+
+create view Historial
+as
+select nomR as rol, Cedula, nomU as nombre, apelliU as apellido, fechaDev as fechaDevolucion, cantDv as cantidad, nomP as producto
+from rol
+join usuario
+on rol.idRol = usuario.id_rol
+join prestamo
+on usuario.Cedula = prestamo.cedu
+join devolucion
+on prestamo.idP = devolucion.idPres
+join producto
+on prestamo.idP = producto.codigoP
+
+select * from Historial
