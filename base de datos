@@ -122,35 +122,35 @@ select * from rol
 /* se crea crud de usuario */
 
 create procedure InsertarUsuario
- @Cedula varchar(20),
- @nomU varchar(20),
- @apelliU varchar(20),
+ @cedula varchar(20),
+ @nombre varchar(20),
+ @apellido varchar(20),
  @celular varchar(15),
- @gmail varchar(30),
- @id_rol varchar(1)
+ @email varchar(30),
+ @rol varchar(1)
 
 as
 begin
  insert into usuario(Cedula,nomU,apelliU,celular,emailU,id_rol) values (@Cedula,@nomU,@apelliU,@celular,@gmail,@id_rol);
 end
 
-create procedure NewUsuario
-@Cedula varchar(20),
-@nomU varchar(20),
-@apelliU varchar(20),
-@celular varchar(15),
-@gmail varchar(30),
-@id_rol varchar(1)
+create procedure UpdateUsuario
+ @cedula varchar(20),
+ @nombre varchar(20),
+ @apellido varchar(20),
+ @celular varchar(15),
+ @email varchar(30),
+ @rol varchar(1)
 as
 begin
-update usuario set nomU=@nomU, apelliU = @apelliU, celular = @celular, emailU = @gmail where Cedula = @Cedula
+update usuario set nomU=@nombre, apelliU = @apellido, celular = @celular, emailU = @email where Cedula = @Cedula
 end
 
-create procedure deleteusuario (
-@Cedula varchar(20))
+create procedure EliminarUsuario (
+@cedula varchar(20))
 as
 begin
-delete from usuario where Cedula = @Cedula;
+delete from usuario where Cedula = @cedula;
 end
 
 select * from usuario;
@@ -167,21 +167,21 @@ begin
  insert into producto(codigoP,nomP,categoria,stock) values (@codigoP,@nomP,@tipo,@disponible);
 end
 
-create procedure NewProducto
- @CodigoP varchar(12),
+create procedure UpdateProducto
+ @codigo varchar(12),
  @nomP varchar(15),
- @tipo varchar(15),
- @disponible int
+ @categoria varchar(15),
+ @stock int
 as
 begin
-update producto set codigoP = @CodigoP, nomP=@nomP, categoria = @tipo, stock = @disponible where codigoP = @CodigoP
+update producto set codigoP = @codigoP, nomP=@nomP, categoria = @categoria, stock = @stock where codigoP = @codigoP
 end
 
-create procedure deleteproducto (
-@CodigoP varchar(12))
+create procedure EliminarProd (
+@codigo varchar(12))
 as
 begin
-delete from producto where codigoP = @CodigoP;
+delete from producto where codigoP = @codigop;
 end
 
 /* se crea crud de prestamo */
@@ -257,7 +257,7 @@ end
 
 /* se crea view de DetUsuario*/
 
-create view DetUsuario
+create view MostrarUsuario
 as
 select Cedula, nomU as Nombre, apelliU as Apellido, emailU, celular, nomR as Rol 
 from usuario 
